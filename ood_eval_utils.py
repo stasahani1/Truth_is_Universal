@@ -1,0 +1,238 @@
+"""OOD evaluation utilities for insider trading and sandbagging benchmarks.
+
+Helper functions for loading OOD rollout data and evaluating probes.
+"""
+
+import json
+from pathlib import Path
+
+import numpy as np
+from sklearn.metrics import accuracy_score, roc_auc_score
+
+
+def load_insider_trading_rollouts(output_dir: str | Path):
+    """Load insider trading rollouts, filtering to HONEST + DECEPTIVE only.
+
+    Returns:
+        rollouts: list of dicts (filtered)
+        labels: np.ndarray of int (0=HONEST, 1=DECEPTIVE)
+    """
+    path = Path(output_dir) / "insider_trading_rollouts.json"
+    with open(path) as f:
+        all_rollouts = json.load(f)
+
+    # Filter to usable rollouts (HONEST or DECEPTIVE)
+    rollouts = [r for r in all_rollouts if r["label"] in ("HONEST", "DECEPTIVE")]
+    labels = np.array([1 if r["label"] == "DECEPTIVE" else 0 for r in rollouts])
+
+    print(f"Insider trading: {len(rollouts)} usable / {len(all_rollouts)} total "
+          f"(HONEST={int((labels == 0).sum())}, DECEPTIVE={int((labels == 1).sum())})")
+    return rollouts, labels
+
+
+def load_sandbagging_rollouts(output_dir: str | Path):
+    """Load sandbagging rollouts.
+
+    Returns:
+        rollouts: list of dicts
+        labels: np.ndarray of int (0=HONEST/MMLU, 1=DECEPTIVE/WMDP)
+    """
+    path = Path(output_dir) / "sandbagging_rollouts.json"
+    with open(path) as f:
+        rollouts = json.load(f)
+
+    labels = np.array([1 if r["label"] == "DECEPTIVE" else 0 for r in rollouts])
+
+    print(f"Sandbagging: {len(rollouts)} total "
+          f"(HONEST={int((labels == 0).sum())}, DECEPTIVE={int((labels == 1).sum())})")
+    return rollouts, labels
+
+
+def build_multi_turn_ids(transcript: list[dict], tokenizer) -> list[int]:
+    """Convert a multi-turn transcript to token IDs using the chat template.
+
+    Args:
+        transcript: list of {"role": ..., "content": ...} dicts
+        tokenizer: HuggingFace tokenizer with apply_chat_template
+
+    Returns:
+        list of int token IDs
+    """
+    ids = tokenizer.apply_chat_template(
+        transcript, tokenize=True, add_generation_prompt=False,
+    )
+    if isinstance(ids[0], list):
+        ids = ids[0]
+    return ids
+
+
+def find_response_start(transcript: list[dict], tokenizer,
+                         response_msg_idx: int = -1) -> int:
+    """Find the token position where a specific assistant response starts.
+
+    Tokenizes the transcript up to (but not including) the target assistant
+    message, then returns the length — which is the start position of that
+    response in the full tokenization.
+
+    Args:
+        transcript: full conversation
+        tokenizer: HuggingFace tokenizer
+        response_msg_idx: index of the target assistant message in transcript
+            (default -1 = last message)
+
+    Returns:
+        int — token position where the response starts
+    """
+    if response_msg_idx < 0:
+        response_msg_idx = len(transcript) + response_msg_idx
+
+    # Tokenize everything up to (but not including) the target message
+    # with add_generation_prompt=True to include the assistant header
+    prefix_msgs = transcript[:response_msg_idx]
+    prefix_ids = tokenizer.apply_chat_template(
+        prefix_msgs, tokenize=True, add_generation_prompt=True,
+    )
+    if isinstance(prefix_ids[0], list):
+        prefix_ids = prefix_ids[0]
+    return len(prefix_ids)
+
+
+def eval_probe_ood(clf, feats, labels, layer, scaler=None):
+    """Evaluate a probe on OOD data at a specific layer.
+
+    Args:
+        clf: fitted sklearn classifier with predict_proba
+        feats: {layer_idx: np.ndarray(n, d)}
+        labels: np.ndarray(n,) int
+        layer: int — which layer to use
+        scaler: optional StandardScaler to apply before prediction
+
+    Returns:
+        dict with {auc, acc, probs}
+    """
+    X = feats[layer]
+    if scaler is not None:
+        X = scaler.transform(X)
+
+    probs = clf.predict_proba(X)[:, 1]
+    preds = (probs >= 0.5).astype(int)
+
+    auc = float(roc_auc_score(labels, probs)) if len(np.unique(labels)) > 1 else 0.5
+    acc = float(accuracy_score(labels, preds))
+
+    return {"auc": auc, "acc": acc, "probs": probs}
+
+
+def eval_tok_probe_ood(clf, scaler, feats, labels, layer, token_counts=None):
+    """Evaluate a token-level probe on OOD data.
+
+    For each example, scores all response tokens via decision_function,
+    then mean-pools to get a per-example score.
+
+    Args:
+        clf: fitted LogisticRegression (fit_intercept=False)
+        scaler: fitted StandardScaler
+        feats: {layer_idx: np.ndarray(n, d)} for last-token feats, OR
+               {layer_idx: list[np.ndarray(n_tokens_i, d)]} for per-example token feats
+        labels: np.ndarray(n,) int
+        layer: int
+        token_counts: if provided, feats[layer] is a stacked array and
+            token_counts[i] gives number of tokens for example i
+
+    Returns:
+        dict with {auc, acc, scores}
+    """
+    X = feats[layer]
+
+    if isinstance(X, list):
+        # Per-example token arrays — score each, mean-pool
+        scores = []
+        for x_i in X:
+            if len(x_i) == 0:
+                scores.append(0.0)
+                continue
+            x_scaled = scaler.transform(x_i.astype(np.float32))
+            s = clf.decision_function(x_scaled).mean()
+            scores.append(float(s))
+        scores = np.array(scores)
+    elif token_counts is not None:
+        # Stacked array with counts
+        X_scaled = scaler.transform(X.astype(np.float32))
+        all_scores = clf.decision_function(X_scaled)
+        scores = []
+        offset = 0
+        for c in token_counts:
+            if c > 0:
+                scores.append(all_scores[offset:offset + c].mean())
+            else:
+                scores.append(0.0)
+            offset += c
+        scores = np.array(scores)
+    else:
+        # Simple last-token features — use directly
+        X_scaled = scaler.transform(X.astype(np.float32))
+        scores = clf.decision_function(X_scaled)
+
+    preds = (scores >= 0).astype(int)
+    auc = float(roc_auc_score(labels, scores)) if len(np.unique(labels)) > 1 else 0.5
+    acc = float(accuracy_score(labels, preds))
+
+    return {"auc": auc, "acc": acc, "scores": scores}
+
+
+def eval_multi_probe_ood(clf, scaler, feats, labels, layers):
+    """Evaluate a multi-layer probe on OOD data.
+
+    Concatenates features across specified layers, scales, and predicts.
+
+    Args:
+        clf: fitted LogisticRegression
+        scaler: fitted StandardScaler
+        feats: {layer_idx: np.ndarray(n, d)}
+        labels: np.ndarray(n,) int
+        layers: list of layer indices
+
+    Returns:
+        dict with {auc, acc, probs}
+    """
+    X = np.concatenate([feats[li] for li in layers], axis=1)
+    X_scaled = scaler.transform(X.astype(np.float32))
+
+    probs = clf.predict_proba(X_scaled)[:, 1]
+    preds = (probs >= 0.5).astype(int)
+
+    auc = float(roc_auc_score(labels, probs)) if len(np.unique(labels)) > 1 else 0.5
+    acc = float(accuracy_score(labels, preds))
+
+    return {"auc": auc, "acc": acc, "probs": probs}
+
+
+def tpr_at_fpr(labels, scores, target_fpr=0.01):
+    """Compute TPR at a given FPR threshold.
+
+    This is Apollo's headline metric: TPR at 1% FPR.
+
+    Args:
+        labels: np.ndarray of int (0=honest, 1=deceptive)
+        scores: np.ndarray of float (higher = more deceptive)
+        target_fpr: float, target false positive rate
+
+    Returns:
+        float — true positive rate at the target FPR
+    """
+    labels = np.asarray(labels)
+    scores = np.asarray(scores)
+
+    neg_scores = scores[labels == 0]
+    pos_scores = scores[labels == 1]
+
+    if len(neg_scores) == 0 or len(pos_scores) == 0:
+        return 0.0
+
+    # Find threshold at target FPR
+    # FPR = fraction of negatives above threshold
+    threshold = np.percentile(neg_scores, 100 * (1 - target_fpr))
+
+    # TPR = fraction of positives above threshold
+    tpr = float((pos_scores >= threshold).mean())
+    return tpr
