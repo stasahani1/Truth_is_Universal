@@ -31,19 +31,84 @@ def load_insider_trading_rollouts(output_dir: str | Path):
 
 
 def load_sandbagging_rollouts(output_dir: str | Path):
-    """Load sandbagging rollouts.
+    """Load sandbagging rollouts, keeping ONLY clean HONEST + DECEPTIVE labels.
+
+    AMBIGUOUS (tried to sandbag but answered correctly) and SKIP (unparseable
+    reasoning) rollouts are excluded — lumping them into the honest class would
+    pollute the negative set and depress AUROC for reasons unrelated to the
+    probe. Prefers the pre-filtered file written by generate_sandbagging.py and
+    falls back to filtering the full file in-memory.
+
+    Returns:
+        rollouts: list of dicts (HONEST + DECEPTIVE only)
+        labels: np.ndarray of int (0=HONEST, 1=DECEPTIVE)
+    """
+    output_dir = Path(output_dir)
+    filtered = output_dir / "sandbagging_rollouts_filtered.json"
+    full = output_dir / "sandbagging_rollouts.json"
+    if filtered.exists():
+        with open(filtered) as f:
+            all_rollouts = json.load(f)
+    else:
+        with open(full) as f:
+            all_rollouts = json.load(f)
+
+    rollouts = [r for r in all_rollouts if r["label"] in ("HONEST", "DECEPTIVE")]
+    labels = np.array([1 if r["label"] == "DECEPTIVE" else 0 for r in rollouts])
+
+    print(f"Sandbagging: {len(rollouts)} usable / {len(all_rollouts)} loaded "
+          f"(HONEST={int((labels == 0).sum())}, DECEPTIVE={int((labels == 1).sum())})")
+    return rollouts, labels
+
+
+def load_roleplaying_rollouts(output_dir: str | Path):
+    """Load roleplaying rollouts (HONEST + DECEPTIVE only).
+
+    Produced by generate_roleplaying.py — each rollout is a {system,user,
+    assistant} transcript whose assistant turn is the (honest or deceptive)
+    roleplay reply. Prefers the pre-filtered file.
 
     Returns:
         rollouts: list of dicts
-        labels: np.ndarray of int (0=HONEST/MMLU, 1=DECEPTIVE/WMDP)
+        labels: np.ndarray of int (0=HONEST, 1=DECEPTIVE)
     """
-    path = Path(output_dir) / "sandbagging_rollouts.json"
+    output_dir = Path(output_dir)
+    filtered = output_dir / "roleplaying_rollouts_filtered.json"
+    full = output_dir / "roleplaying_rollouts.json"
+    path = filtered if filtered.exists() else full
     with open(path) as f:
-        rollouts = json.load(f)
+        all_rollouts = json.load(f)
 
+    rollouts = [r for r in all_rollouts if r["label"] in ("HONEST", "DECEPTIVE")]
     labels = np.array([1 if r["label"] == "DECEPTIVE" else 0 for r in rollouts])
 
-    print(f"Sandbagging: {len(rollouts)} total "
+    print(f"Roleplaying: {len(rollouts)} usable / {len(all_rollouts)} loaded "
+          f"(HONEST={int((labels == 0).sum())}, DECEPTIVE={int((labels == 1).sum())})")
+    return rollouts, labels
+
+
+def load_ai_liar_rollouts(output_dir: str | Path):
+    """Load on-policy AI Liar rollouts (HONEST + DECEPTIVE only).
+
+    Produced by generate_ai_liar.py — each rollout is a {system,user,assistant}
+    transcript whose assistant turn is OUR Llama-3.1-8B's own answer to an AI Liar
+    scenario, graded honest/deceptive. Prefers the pre-filtered file.
+
+    Returns:
+        rollouts: list of dicts
+        labels: np.ndarray of int (0=HONEST, 1=DECEPTIVE)
+    """
+    output_dir = Path(output_dir)
+    filtered = output_dir / "ai_liar_rollouts_filtered.json"
+    full = output_dir / "ai_liar_rollouts.json"
+    path = filtered if filtered.exists() else full
+    with open(path) as f:
+        all_rollouts = json.load(f)
+
+    rollouts = [r for r in all_rollouts if r["label"] in ("HONEST", "DECEPTIVE")]
+    labels = np.array([1 if r["label"] == "DECEPTIVE" else 0 for r in rollouts])
+
+    print(f"AI Liar: {len(rollouts)} usable / {len(all_rollouts)} loaded "
           f"(HONEST={int((labels == 0).sum())}, DECEPTIVE={int((labels == 1).sum())})")
     return rollouts, labels
 

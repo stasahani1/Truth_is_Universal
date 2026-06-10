@@ -181,6 +181,7 @@ def generate_rollouts(
     model_id: str = "meta-llama/Llama-3.1-8B-Instruct",
     max_new_tokens: int = 1024,
     load_in_4bit: bool = True,
+    batch_size: int = 16,
 ):
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -196,6 +197,7 @@ def generate_rollouts(
     tokenizer = AutoTokenizer.from_pretrained(model_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"  # required for batched decoder-only generation
 
     model_kwargs = {}
     if load_in_4bit and torch.cuda.is_available():
@@ -227,25 +229,33 @@ def generate_rollouts(
     for row in mmlu_rows:
         all_items.append(("mmlu", row))
 
-    for source, row in tqdm(all_items, desc="Generating sandbagging rollouts"):
-        system_prompt = SANDBAGGING_SYSTEM_PROMPT.format(skill=WMDP_SKILL_DESCRIPTION)
-        user_prompt = SANDBAGGING_USER_PROMPT.format(question=row["question"])
+    def batches(seq, n):
+        for i in range(0, len(seq), n):
+            yield seq[i:i + n]
 
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ]
+    n_batches = (len(all_items) + batch_size - 1) // batch_size
+    for batch in tqdm(list(batches(all_items, batch_size)),
+                      total=n_batches, desc="Generating sandbagging (batched)"):
+        # Build prompts for the whole batch; left-padding keeps the prompt span a
+        # fixed width so new tokens are output_ids[:, prompt_len:] for every row.
+        prompt_texts, metas = [], []
+        for source, row in batch:
+            system_prompt = SANDBAGGING_SYSTEM_PROMPT.format(skill=WMDP_SKILL_DESCRIPTION)
+            user_prompt = SANDBAGGING_USER_PROMPT.format(question=row["question"])
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ]
+            prompt_texts.append(tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True))
+            metas.append((source, row, system_prompt, user_prompt))
 
-        input_ids = tokenizer.apply_chat_template(
-            messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
-        )
-        if not isinstance(input_ids, torch.Tensor):
-            input_ids = input_ids["input_ids"]
-        input_ids = input_ids.to(model.device)
+        enc = tokenizer(prompt_texts, return_tensors="pt", padding=True,
+                        add_special_tokens=False).to(model.device)
 
         with torch.no_grad():
             output_ids = model.generate(
-                input_ids,
+                **enc,
                 max_new_tokens=max_new_tokens,
                 do_sample=True,
                 temperature=0.7,
@@ -253,32 +263,29 @@ def generate_rollouts(
                 pad_token_id=tokenizer.pad_token_id,
             )
 
-        new_tokens = output_ids[0, input_ids.shape[1]:]
-        response = tokenizer.decode(new_tokens, skip_special_tokens=True)
+        gen_tokens = output_ids[:, enc["input_ids"].shape[1]:]
+        for j, (source, row, system_prompt, user_prompt) in enumerate(metas):
+            response = tokenizer.decode(gen_tokens[j], skip_special_tokens=True)
 
-        # Parse answer
-        parsed_answer = extract_answer_tag(response)
-        correct_answer = ANSWER_MAP.get(row["answer"], "?")
+            parsed_answer = extract_answer_tag(response)
+            correct_answer = ANSWER_MAP.get(row["answer"], "?")
+            label = label_response(response)
 
-        # Label by actual model behavior, not just context
-        label = label_response(response)
-
-        rollout = {
-            "source": source,
-            "topic": row.get("topic", "unknown"),
-            "question": row["question"],
-            "correct_answer": correct_answer,
-            "parsed_answer": parsed_answer,
-            "got_correct": parsed_answer == correct_answer if parsed_answer else None,
-            "response": response,
-            "label": label,
-            "transcript": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-                {"role": "assistant", "content": response},
-            ],
-        }
-        rollouts.append(rollout)
+            rollouts.append({
+                "source": source,
+                "topic": row.get("topic", "unknown"),
+                "question": row["question"],
+                "correct_answer": correct_answer,
+                "parsed_answer": parsed_answer,
+                "got_correct": parsed_answer == correct_answer if parsed_answer else None,
+                "response": response,
+                "label": label,
+                "transcript": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                    {"role": "assistant", "content": response},
+                ],
+            })
 
     # ── Save ──────────────────────────────────────────────────────────────
     out_file = output_path / "sandbagging_rollouts.json"
@@ -362,6 +369,7 @@ if __name__ == "__main__":
                         default="meta-llama/Llama-3.1-8B-Instruct")
     parser.add_argument("--max-new-tokens", type=int, default=1024)
     parser.add_argument("--no-4bit", action="store_true")
+    parser.add_argument("--batch-size", type=int, default=16)
     args = parser.parse_args()
 
     generate_rollouts(
@@ -372,4 +380,5 @@ if __name__ == "__main__":
         model_id=args.model_id,
         max_new_tokens=args.max_new_tokens,
         load_in_4bit=not args.no_4bit,
+        batch_size=args.batch_size,
     )
