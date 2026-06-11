@@ -48,6 +48,122 @@ def load_sandbagging_rollouts(output_dir: str | Path):
     return rollouts, labels
 
 
+# ── Liars' Bench (HuggingFace Cadenza-Labs/liars-bench) ───────────────────────
+# Released benchmark — do NOT rebuild. Gated repo: the caller must have accepted
+# the gate and pass an HF token. Subsets are per-directory parquet files; we score
+# two of them, mapped to the same {label, transcript} shape as the other loaders:
+#   instructed-deception          (ID)    — transcript-legible, instructed (I' analogue)
+#   harm-pressure-knowledge-report(HP-KR) — truth depends on private belief (P analogue)
+
+_LB_SUBSETS = {
+    "instructed_deception": "instructed-deception",
+    "instructed-deception": "instructed-deception",
+    "id": "instructed-deception",
+    "harm_pressure_kr": "harm-pressure-knowledge-report",
+    "harm-pressure-knowledge-report": "harm-pressure-knowledge-report",
+    "hp_kr": "harm-pressure-knowledge-report",
+}
+
+
+def _lb_extract_transcript(row: dict) -> list[dict]:
+    """Map a Liars' Bench row to a [{role, content}, ...] transcript.
+
+    Auto-detects the conversation field (the gated schema can't be inspected
+    ahead of time); raises with the available columns if nothing matches so the
+    mapping is fixed explicitly rather than failing silently downstream.
+    """
+    for key in ("messages", "transcript", "conversation", "dialogue",
+                "prompt_messages", "chat"):
+        v = row.get(key)
+        if isinstance(v, list) and v and isinstance(v[0], dict) and "role" in v[0]:
+            return [{"role": m["role"],
+                     "content": m.get("content", m.get("value", ""))} for m in v]
+    msgs = []
+    if row.get("system"):
+        msgs.append({"role": "system", "content": row["system"]})
+    user = row.get("prompt") or row.get("question") or row.get("input")
+    if user:
+        msgs.append({"role": "user", "content": user})
+    comp = row.get("completion") or row.get("response") or row.get("answer") \
+        or row.get("output")
+    if comp:
+        msgs.append({"role": "assistant", "content": comp})
+    if msgs:
+        return msgs
+    raise KeyError(f"No transcript-like field in Liars' Bench row; columns="
+                   f"{list(row.keys())}")
+
+
+def _lb_extract_label(row: dict) -> int:
+    """Map a Liars' Bench row to 1=deceptive / 0=honest (auto-detect)."""
+    for key in ("is_deceptive", "deceptive"):
+        if row.get(key) is not None:
+            return int(bool(row[key]))
+    for key in ("label", "target", "class", "category"):
+        if row.get(key) is not None:
+            v = row[key]
+            if isinstance(v, (int, bool)):
+                return int(bool(v))
+            s = str(v).strip().lower()
+            if s in ("deceptive", "lie", "lying", "dishonest", "deceptively",
+                     "1", "true"):
+                return 1
+            if s in ("honest", "truthful", "0", "false"):
+                return 0
+    if row.get("honest") is not None:
+        return int(not bool(row["honest"]))
+    raise KeyError(f"No label-like field in Liars' Bench row; columns="
+                   f"{list(row.keys())}")
+
+
+def load_liars_bench(subset: str, token=None, split: str = "test",
+                     verbose: bool = True):
+    """Load one Liars' Bench subset from HF Cadenza-Labs/liars-bench.
+
+    Args:
+        subset: friendly or raw name (see _LB_SUBSETS), e.g. 'instructed_deception'
+            or 'harm_pressure_kr'.
+        token: HF token (the repo is gated; reuse the notebook's hf_token).
+        split: dataset split (default 'test' — these subsets ship test only).
+
+    Returns:
+        (rollouts, labels) in the same shape as the other OOD loaders:
+        rollouts = list of {'label': 'HONEST'|'DECEPTIVE', 'transcript': [...],
+        'subset': <cfg>}; labels = np.ndarray int (1=deceptive).
+    """
+    from datasets import load_dataset
+
+    cfg = _LB_SUBSETS.get(subset, subset)
+    # Per-subdir parquet — load by data_files glob (robust to config registration),
+    # fall back to a named config if that fails.
+    try:
+        ds = load_dataset("Cadenza-Labs/liars-bench",
+                          data_files={split: f"{cfg}/{split}-*.parquet"},
+                          split=split, token=token)
+    except Exception:
+        ds = load_dataset("Cadenza-Labs/liars-bench", cfg, split=split,
+                          token=token)
+
+    rollouts, labels = [], []
+    for row in ds:
+        lab = _lb_extract_label(row)
+        tr = _lb_extract_transcript(row)
+        rollouts.append({"label": "DECEPTIVE" if lab == 1 else "HONEST",
+                         "transcript": tr, "subset": cfg})
+        labels.append(lab)
+    labels = np.array(labels)
+
+    if verbose:
+        print(f"Liars' Bench [{cfg}]: {len(rollouts)} rows "
+              f"(HONEST={int((labels == 0).sum())}, "
+              f"DECEPTIVE={int((labels == 1).sum())})")
+        print(f"  source columns: {ds.column_names}")
+        if rollouts:
+            print(f"  sample transcript roles: "
+                  f"{[m['role'] for m in rollouts[0]['transcript']]}")
+    return rollouts, labels
+
+
 def build_multi_turn_ids(transcript: list[dict], tokenizer) -> list[int]:
     """Convert a multi-turn transcript to token IDs using the chat template.
 
