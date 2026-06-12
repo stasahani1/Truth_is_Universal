@@ -1,9 +1,12 @@
-torch==2.1.2
-transformers==4.44.2
-sentencepiece==0.1.99
-protobuf==5.27.2
-pandas==2.2.0
-tqdm==4.65.0
-matplotlib==3.8.3
-numpy==1.26.3
-scikit-learn==1.4.1.post1
+# Python deps for reextract_response_position.py (remote GPU).
+# NOTE: torch is intentionally omitted — use the instance's preinstalled CUDA
+# build. If torch is missing, install the CUDA wheel that matches the box first.
+transformers
+bitsandbytes
+accelerate
+scikit-learn
+scipy
+pandas
+numpy
+matplotlib
+tqdm
