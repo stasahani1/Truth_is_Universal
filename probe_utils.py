@@ -28,7 +28,8 @@ N_RANDOM_DIRS = 1000
 # configuration cell as the single source of truth for hyperparameters.
 __all__ = [
     'fit_probe', 'eval_probe', 'probe_direction', 'multiseed_best_layer',
-    'cosine_sim', 'random_cosine_null', 'cosine_zscore', 'fit_final_probe',
+    'cosine_sim', 'random_cosine_null', 'cosine_zscore', 'random_direction_auc',
+    'fit_final_probe',
     'all_layer_directions', 'multiseed_layer_cosines', 'cross_transfer_matrix',
     'cross_transfer_matrix_oracle_layer', 'group_disjoint_transfer',
     'bootstrap_ci_matrix', 'print_transfer_matrix', 'fit_tok_probe',
@@ -161,6 +162,36 @@ def random_cosine_null(dim, n_samples=N_RANDOM_DIRS):
 def cosine_zscore(observed, null_mean, null_std):
     """Z-score of an observed cosine against a null distribution."""
     return (observed - null_mean) / null_std if null_std > 0 else 0.0
+
+
+def random_direction_auc(X, y, n_dirs=N_RANDOM_DIRS, seed=0):
+    """Test-set 'easiness' floor: AUC achievable by RANDOM directions.
+
+    Samples *n_dirs* random unit vectors, projects X onto each, and computes the
+    sign-agnostic AUC max(auc, 1-auc) vs labels y (direction sign is arbitrary).
+    A high p95/max means the labels are separable along *many* directions — i.e.
+    the test set is trivially easy — so a high cross-transfer AUC into this set
+    reflects test-set easiness, not a meaningful shared direction.
+
+    Returns {mean, std, p95, max, frac_above_*} over the n_dirs AUCs.
+    """
+    X = np.asarray(X, dtype=np.float64)
+    y = np.asarray(y)
+    if len(np.unique(y)) < 2:
+        return {'mean': 0.5, 'std': 0.0, 'p95': 0.5, 'max': 0.5,
+                'frac_above_0.7': 0.0, 'frac_above_0.8': 0.0}
+    rng = np.random.RandomState(seed)
+    d = X.shape[1]
+    aucs = np.empty(n_dirs)
+    for i in range(n_dirs):
+        v = rng.randn(d)
+        v /= np.linalg.norm(v)
+        a = roc_auc_score(y, X @ v)
+        aucs[i] = max(a, 1.0 - a)          # sign of the random direction is arbitrary
+    return {'mean': float(aucs.mean()), 'std': float(aucs.std()),
+            'p95': float(np.percentile(aucs, 95)), 'max': float(aucs.max()),
+            'frac_above_0.7': float((aucs > 0.7).mean()),
+            'frac_above_0.8': float((aucs > 0.8).mean())}
 
 
 # ── Probe training helpers (from Cell 25) ─────────────────────────────────────
