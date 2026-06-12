@@ -19,6 +19,7 @@ Run:
 import matplotlib
 matplotlib.use('Agg')                      # headless: no display
 import os, sys
+from pathlib import Path
 
 REPO_DIR = os.environ.get('REPO_DIR', os.path.dirname(os.path.abspath(__file__)))
 if REPO_DIR not in sys.path:
