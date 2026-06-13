@@ -1,0 +1,101 @@
+{
+  "caveat": "off-policy (8B reads 70B-class transcripts); HP-KR=WMDP; balAcc@1% is LB native metric",
+  "key_cells": {
+    "P_C->HP_KR": {
+      "lr_auc": 0.31109600000000004,
+      "lr_std": 0.07977509439919203,
+      "lr_ci": [
+        0.24735405967933896,
+        0.3093575757539171
+      ],
+      "diffmean_auc": 0.719748,
+      "balacc_1pct": 0.497
+    },
+    "POOLED->HP_KR": {
+      "lr_auc": 0.5379452,
+      "lr_std": 0.09274176483203238,
+      "lr_ci": [
+        0.5561988029672563,
+        0.6240904767234265
+      ],
+      "diffmean_auc": 0.384708,
+      "balacc_1pct": 0.499
+    },
+    "I_C->HP_KR": {
+      "lr_auc": 0.14543080000000003,
+      "lr_std": 0.021200534336662358,
+      "lr_ci": [
+        0.10183249330984107,
+        0.1465133575525522
+      ],
+      "diffmean_auc": 0.077684,
+      "balacc_1pct": 0.499
+    },
+    "P_S->ID": {
+      "lr_auc": 0.7170816000000001,
+      "lr_std": 0.021413643441507115,
+      "lr_ci": [
+        0.7241334768255365,
+        0.7814123697914538
+      ],
+      "diffmean_auc": 0.700332,
+      "balacc_1pct": 0.501
+    },
+    "I_S->ID": {
+      "lr_auc": 0.6991807999999999,
+      "lr_std": 0.004614625029187109,
+      "lr_ci": [
+        0.6766272156502647,
+        0.7389460888265218
+      ],
+      "diffmean_auc": 0.6700280000000001,
+      "balacc_1pct": 0.514
+    }
+  },
+  "tfidf": {
+    "within_HP_KR": 0.8378982371267467,
+    "within_ID": 0.8949163631845716,
+    "P_C_text->HP_KR_text": 0.71902,
+    "P_S_text->ID_text": 0.425574
+  },
+  "llama70b_subset": {
+    "P_C->HP_KR": {
+      "n": 240,
+      "lr_auc": 0.4205512152777778,
+      "diffmean": 0.7612847222222222
+    },
+    "POOLED->HP_KR": {
+      "n": 240,
+      "lr_auc": 0.578298611111111,
+      "diffmean": 0.6025390625
+    },
+    "I_C->HP_KR": {
+      "n": 240,
+      "lr_auc": 0.12515190972222223,
+      "diffmean": 0.03993055555555557
+    },
+    "P_S->ID": {
+      "n": 204,
+      "lr_auc": 0.7770449058425882,
+      "diffmean": 0.7413809753742154
+    },
+    "I_S->ID": {
+      "n": 204,
+      "lr_auc": 0.7578754225012071,
+      "diffmean": 0.731723804925157
+    }
+  },
+  "B5_P_C_HPKR": {
+    "preTrained->HPKR_resp": 0.853748,
+    "preTrained->HPKR_pre": 0.7433359999999999,
+    "respTrained->HPKR_resp": 0.30681200000000003,
+    "trainOn_level_2->HPKR_resp": {
+      "n_train": 244,
+      "auc": 0.259488
+    },
+    "trainOn_level_3->HPKR_resp": {
+      "n_train": 244,
+      "auc": 0.497944
+    }
+  }
+}
