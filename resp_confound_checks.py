@@ -106,9 +106,23 @@ for src, tgt in [('P_S', 'P_C'), ('P_C', 'P_S')]:
     print(f'  {src+" -> "+tgt:>12s}   {r["pooled"]:7.3f}  {r["ans_yes"]:8.3f}  '
           f'{r["ans_no"]:7.3f}  {r["balanced"]:6.3f}   (n_yes={r["n_yes"]}, n_no={r["n_no"]})')
 both = results['polarity_transfer']
-ok = all(min(v['ans_yes'], v['ans_no']) >= 0.65 for v in both.values())
-print(f'  => VERDICT: P_S<->P_C recovery {"SURVIVES" if ok else "DOES NOT survive"} the '
-      f'within-answer control -> {"context-ROTATED (real)" if ok else "answer-token artifact"}.')
+# Survival test: removing the label<->answer correlation (balanced subsample) and
+# scoring WITHIN a fixed-answer stratum should not collapse the transfer toward 0.5.
+# A direction is "answer-driven" only if balanced drops far below pooled OR a stratum
+# falls to ~chance. (An absolute cutoff like 0.65 is wrong — within-stratum AUCs of
+# 0.6-0.8 ARE survival, not failure.)
+print('\n  survival = balanced AUC stays near pooled (answer correlation removed):')
+survive = {}
+for k, v in both.items():
+    drop = v['pooled'] - v['balanced']
+    s = (v['balanced'] >= 0.60) and (drop < 0.10) and (min(v['ans_yes'], v['ans_no']) >= 0.55)
+    survive[k] = bool(s)
+    print(f'    {k}: balanced {v["balanced"]:.3f} vs pooled {v["pooled"]:.3f} '
+          f'(drop {drop:+.3f}; strata {v["ans_yes"]:.2f}/{v["ans_no"]:.2f}) '
+          f'-> {"SURVIVES" if s else "answer-driven"}')
+results['polarity_survives'] = survive
+allok = all(survive.values())
+print(f'  => VERDICT: P_S<->P_C recovery {"SURVIVES the within-answer control -> context-ROTATED (real)" if allok else "is PARTLY answer-driven -> interpret per-direction above"}.')
 
 # ── (2) DiffMean on the response-token critical cells ────────────────────────
 print('\n' + '=' * 70 + '\n(2) DIFFMEAN vs LR on the response-token critical cells\n' + '=' * 70)
