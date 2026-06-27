@@ -1,0 +1,39 @@
+{
+  "strong@0.7": {
+    "lie_rate": 0.1785,
+    "both_label_items": 20,
+    "both_label_frac": 0.3333,
+    "refusal_rate": 0.0
+  },
+  "strong@1.0": {
+    "lie_rate": 0.2146,
+    "both_label_items": 27,
+    "both_label_frac": 0.45,
+    "refusal_rate": 0.0
+  },
+  "strong@1.3": {
+    "lie_rate": 0.2479,
+    "both_label_items": 33,
+    "both_label_frac": 0.55,
+    "refusal_rate": 0.0
+  },
+  "mild@0.7": {
+    "lie_rate": 0.05,
+    "both_label_items": 7,
+    "both_label_frac": 0.1167,
+    "refusal_rate": 0.0
+  },
+  "mild@1.0": {
+    "lie_rate": 0.0604,
+    "both_label_items": 11,
+    "both_label_frac": 0.1833,
+    "refusal_rate": 0.0
+  },
+  "mild@1.3": {
+    "lie_rate": 0.0847,
+    "both_label_items": 15,
+    "both_label_frac": 0.25,
+    "refusal_rate": 0.0
+  },
+  "_recommended": "strong@1.3"
+}

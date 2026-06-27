@@ -1,0 +1,10 @@
+{
+  "prompt_tfidf_auc": 0.531,
+  "tfidf_note": "chance by construction (lie/truth share prompt text); expect ~0.50",
+  "n_rollouts": 17056,
+  "output_confidence": {
+    "neg_pchosen_auc": 0.946,
+    "n": 17056,
+    "variant": "strong"
+  }
+}

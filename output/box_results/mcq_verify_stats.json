@@ -1,0 +1,16 @@
+{
+  "n_candidates": 2000,
+  "n_kept": 895,
+  "keep_rate": 0.4475,
+  "mean_sample_accuracy": 0.6184,
+  "refusal_rate": 0.0,
+  "n_samples": 10,
+  "temp": 0.7,
+  "min_correct": 10,
+  "kept_by_correct_letter": {
+    "A": 215,
+    "B": 216,
+    "C": 239,
+    "D": 225
+  }
+}

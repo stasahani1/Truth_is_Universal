@@ -1,0 +1,213 @@
+{
+  "mode": "rollout-weighted",
+  "n_rollouts_raw": 17056,
+  "n_rows": 17056,
+  "n_lie": 6142,
+  "n_truth": 10914,
+  "n_facts": 533,
+  "resp": {
+    "best_layer": 30,
+    "crossfact_LR": {
+      "auc": 0.976,
+      "std": 0.01,
+      "n_seeds": 10
+    },
+    "crossfact_DiffMean": {
+      "auc": 0.845,
+      "std": 0.038,
+      "n_seeds": 10
+    },
+    "indist_LR": {
+      "auc": 1.0,
+      "std": 0.0,
+      "n_seeds": 10
+    },
+    "indist_DiffMean": {
+      "auc": 0.843,
+      "std": 0.006,
+      "n_seeds": 10
+    },
+    "shuffled_floor": {
+      "auc": 0.483,
+      "std": 0.026,
+      "n_seeds": 10
+    },
+    "by_layer_crossfact_LR": {
+      "0": 0.556,
+      "1": 0.559,
+      "2": 0.576,
+      "3": 0.569,
+      "4": 0.568,
+      "5": 0.576,
+      "6": 0.568,
+      "7": 0.571,
+      "8": 0.566,
+      "9": 0.541,
+      "10": 0.733,
+      "11": 0.811,
+      "12": 0.867,
+      "13": 0.89,
+      "14": 0.965,
+      "15": 0.971,
+      "16": 0.969,
+      "17": 0.966,
+      "18": 0.965,
+      "19": 0.963,
+      "20": 0.963,
+      "21": 0.964,
+      "22": 0.974,
+      "23": 0.974,
+      "24": 0.974,
+      "25": 0.974,
+      "26": 0.974,
+      "27": 0.974,
+      "28": 0.974,
+      "29": 0.973,
+      "30": 0.976,
+      "31": 0.975,
+      "32": 0.972
+    }
+  },
+  "pre": {
+    "best_layer": 23,
+    "crossfact_LR": {
+      "auc": 0.679,
+      "std": 0.007,
+      "n_seeds": 10
+    },
+    "crossfact_DiffMean": {
+      "auc": 0.659,
+      "std": 0.016,
+      "n_seeds": 10
+    },
+    "indist_LR": {
+      "auc": 0.739,
+      "std": 0.005,
+      "n_seeds": 10
+    },
+    "indist_DiffMean": {
+      "auc": 0.672,
+      "std": 0.006,
+      "n_seeds": 10
+    },
+    "shuffled_floor": {
+      "auc": 0.502,
+      "std": 0.021,
+      "n_seeds": 10
+    },
+    "by_layer_crossfact_LR": {
+      "0": 0.5,
+      "1": 0.522,
+      "2": 0.531,
+      "3": 0.542,
+      "4": 0.533,
+      "5": 0.537,
+      "6": 0.551,
+      "7": 0.559,
+      "8": 0.567,
+      "9": 0.558,
+      "10": 0.558,
+      "11": 0.559,
+      "12": 0.556,
+      "13": 0.571,
+      "14": 0.581,
+      "15": 0.613,
+      "16": 0.624,
+      "17": 0.628,
+      "18": 0.663,
+      "19": 0.674,
+      "20": 0.672,
+      "21": 0.678,
+      "22": 0.675,
+      "23": 0.679,
+      "24": 0.673,
+      "25": 0.678,
+      "26": 0.677,
+      "27": 0.677,
+      "28": 0.676,
+      "29": 0.673,
+      "30": 0.673,
+      "31": 0.672,
+      "32": 0.525
+    }
+  },
+  "letter_decoder_resp": {
+    "acc": 1.0,
+    "macro_auc": 1.0,
+    "chance_acc": 0.25
+  },
+  "letter_disjoint_resp_LR": {
+    "AB->CD": 0.608,
+    "CD->AB": 0.609
+  },
+  "letter_disjoint_resp_DiffMean": {
+    "AB->CD": 0.237,
+    "CD->AB": 0.211
+  },
+  "cross_score": {
+    "_available_keys": [
+      "best_layer_I_C",
+      "best_layer_I_S",
+      "best_layer_P_C",
+      "best_layer_P_S",
+      "best_layer_Z",
+      "best_layer_Z_mean",
+      "best_layer_Z_tok",
+      "clf_I_C",
+      "clf_I_S",
+      "clf_P_C",
+      "clf_P_S",
+      "clf_Z",
+      "clf_Z_mean",
+      "clf_Z_multi",
+      "clf_Z_tok",
+      "dirs_I_C",
+      "dirs_I_S",
+      "dirs_P_C",
+      "dirs_P_S",
+      "dirs_Z",
+      "dirs_Z_matched_C",
+      "dirs_Z_mean",
+      "dirs_Z_mean_matched_C",
+      "dirs_Z_multi",
+      "dirs_Z_multi_C1",
+      "dirs_Z_tok",
+      "dirs_Z_tok_C1",
+      "w_I_C",
+      "w_I_S",
+      "w_P_C",
+      "w_P_S",
+      "w_Z",
+      "w_Z_mean",
+      "w_Z_tok"
+    ],
+    "P_S": {
+      "best_layer": 19,
+      "resp": 0.69,
+      "pre": 0.491
+    },
+    "P_C": {
+      "best_layer": 21,
+      "resp": 0.493,
+      "pre": 0.517
+    },
+    "POOLED": {
+      "note": "direction/best_layer not found"
+    },
+    "Z": {
+      "best_layer": 17,
+      "resp": 0.581,
+      "pre": 0.546
+    },
+    "Z_mean": {
+      "best_layer": 10,
+      "resp": 0.536,
+      "pre": 0.476
+    },
+    "Z_tok": {
+      "best_layer": 8,
+      "resp": 0.509,
+      "pre": 0.506
+    }
+  }
+}

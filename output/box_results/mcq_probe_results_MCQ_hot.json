@@ -1,0 +1,213 @@
+{
+  "mode": "dedup",
+  "n_rollouts_raw": 23648,
+  "n_rows": 2292,
+  "n_lie": 1553,
+  "n_truth": 739,
+  "n_facts": 739,
+  "resp": {
+    "best_layer": 30,
+    "crossfact_LR": {
+      "auc": 0.992,
+      "std": 0.002,
+      "n_seeds": 10
+    },
+    "crossfact_DiffMean": {
+      "auc": 0.947,
+      "std": 0.01,
+      "n_seeds": 10
+    },
+    "indist_LR": {
+      "auc": 0.987,
+      "std": 0.002,
+      "n_seeds": 10
+    },
+    "indist_DiffMean": {
+      "auc": 0.944,
+      "std": 0.006,
+      "n_seeds": 10
+    },
+    "shuffled_floor": {
+      "auc": 0.517,
+      "std": 0.027,
+      "n_seeds": 10
+    },
+    "by_layer_crossfact_LR": {
+      "0": 0.518,
+      "1": 0.516,
+      "2": 0.521,
+      "3": 0.524,
+      "4": 0.527,
+      "5": 0.527,
+      "6": 0.527,
+      "7": 0.532,
+      "8": 0.537,
+      "9": 0.563,
+      "10": 0.792,
+      "11": 0.853,
+      "12": 0.909,
+      "13": 0.929,
+      "14": 0.985,
+      "15": 0.989,
+      "16": 0.989,
+      "17": 0.989,
+      "18": 0.988,
+      "19": 0.987,
+      "20": 0.987,
+      "21": 0.987,
+      "22": 0.992,
+      "23": 0.991,
+      "24": 0.991,
+      "25": 0.991,
+      "26": 0.991,
+      "27": 0.991,
+      "28": 0.991,
+      "29": 0.99,
+      "30": 0.992,
+      "31": 0.992,
+      "32": 0.99
+    }
+  },
+  "pre": {
+    "best_layer": 20,
+    "crossfact_LR": {
+      "auc": 0.577,
+      "std": 0.003,
+      "n_seeds": 10
+    },
+    "crossfact_DiffMean": {
+      "auc": 0.574,
+      "std": 0.003,
+      "n_seeds": 10
+    },
+    "indist_LR": {
+      "auc": 0.191,
+      "std": 0.015,
+      "n_seeds": 10
+    },
+    "indist_DiffMean": {
+      "auc": 0.548,
+      "std": 0.018,
+      "n_seeds": 10
+    },
+    "shuffled_floor": {
+      "auc": 0.501,
+      "std": 0.009,
+      "n_seeds": 10
+    },
+    "by_layer_crossfact_LR": {
+      "0": 0.5,
+      "1": 0.509,
+      "2": 0.52,
+      "3": 0.525,
+      "4": 0.529,
+      "5": 0.532,
+      "6": 0.535,
+      "7": 0.539,
+      "8": 0.541,
+      "9": 0.541,
+      "10": 0.542,
+      "11": 0.542,
+      "12": 0.544,
+      "13": 0.553,
+      "14": 0.562,
+      "15": 0.567,
+      "16": 0.57,
+      "17": 0.571,
+      "18": 0.574,
+      "19": 0.576,
+      "20": 0.577,
+      "21": 0.576,
+      "22": 0.577,
+      "23": 0.577,
+      "24": 0.576,
+      "25": 0.576,
+      "26": 0.577,
+      "27": 0.576,
+      "28": 0.576,
+      "29": 0.575,
+      "30": 0.575,
+      "31": 0.575,
+      "32": 0.538
+    }
+  },
+  "letter_decoder_resp": {
+    "acc": 1.0,
+    "macro_auc": 1.0,
+    "chance_acc": 0.25
+  },
+  "letter_disjoint_resp_LR": {
+    "AB->CD": 0.771,
+    "CD->AB": 0.822
+  },
+  "letter_disjoint_resp_DiffMean": {
+    "AB->CD": 0.337,
+    "CD->AB": 0.366
+  },
+  "cross_score": {
+    "_available_keys": [
+      "best_layer_I_C",
+      "best_layer_I_S",
+      "best_layer_P_C",
+      "best_layer_P_S",
+      "best_layer_Z",
+      "best_layer_Z_mean",
+      "best_layer_Z_tok",
+      "clf_I_C",
+      "clf_I_S",
+      "clf_P_C",
+      "clf_P_S",
+      "clf_Z",
+      "clf_Z_mean",
+      "clf_Z_multi",
+      "clf_Z_tok",
+      "dirs_I_C",
+      "dirs_I_S",
+      "dirs_P_C",
+      "dirs_P_S",
+      "dirs_Z",
+      "dirs_Z_matched_C",
+      "dirs_Z_mean",
+      "dirs_Z_mean_matched_C",
+      "dirs_Z_multi",
+      "dirs_Z_multi_C1",
+      "dirs_Z_tok",
+      "dirs_Z_tok_C1",
+      "w_I_C",
+      "w_I_S",
+      "w_P_C",
+      "w_P_S",
+      "w_Z",
+      "w_Z_mean",
+      "w_Z_tok"
+    ],
+    "P_S": {
+      "best_layer": 19,
+      "resp": 0.7,
+      "pre": 0.492
+    },
+    "P_C": {
+      "best_layer": 21,
+      "resp": 0.555,
+      "pre": 0.518
+    },
+    "POOLED": {
+      "note": "direction/best_layer not found"
+    },
+    "Z": {
+      "best_layer": 17,
+      "resp": 0.621,
+      "pre": 0.53
+    },
+    "Z_mean": {
+      "best_layer": 10,
+      "resp": 0.556,
+      "pre": 0.486
+    },
+    "Z_tok": {
+      "best_layer": 8,
+      "resp": 0.486,
+      "pre": 0.507
+    }
+  }
+}
