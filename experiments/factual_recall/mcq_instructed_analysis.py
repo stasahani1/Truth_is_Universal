@@ -87,23 +87,35 @@ def mcq_pressure_dirs():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--out', default=str(RES / 'mcq_instructed_results.json'))
+    ap.add_argument('--tag', default='MCQI')
+    ap.add_argument('--contrast', choices=['dec_hon', 'dec_internal'], default='dec_hon',
+                    help='dec_hon: DEC-lie vs HON-truth (prompt differs). '
+                         'dec_internal: within DEC instruction, complied-lie vs resisted-truth (prompt frame matched).')
+    ap.add_argument('--out', default=None)
     args = ap.parse_args()
+    if args.out is None:
+        sfx = ('' if args.tag == 'MCQI' else '_' + args.tag) + ('' if args.contrast == 'dec_hon' else '_internal')
+        args.out = str(RES / f'mcq_instructed_results{sfx}.json')
 
-    m = np.load(DIAG / 'meta_MCQI.npz', allow_pickle=True)
+    m = np.load(DIAG / f'meta_{args.tag}.npz', allow_pickle=True)
     cond = m['condition'].astype(int); picked = m['picked_letter']; correct = m['correct_letter']
     pchosen = m['pchosen']; groups = m['groups']
-    feats = load_feats('MCQI')
+    feats = load_feats(args.tag)
 
-    dec_comply = (cond == 1) & (picked != correct)        # confident-or-not lies
-    hon_comply = (cond == 0) & (picked == correct)        # truths
-    mask = dec_comply | hon_comply
-    y = dec_comply[mask].astype(int)                       # lie=1
+    if args.contrast == 'dec_internal':
+        # within the DEC instruction only: lie = complied (gave wrong), truth = resisted (gave correct)
+        lie_rows = (cond == 1) & (picked != correct)
+        tru_rows = (cond == 1) & (picked == correct)
+    else:
+        lie_rows = (cond == 1) & (picked != correct)      # DEC-lie
+        tru_rows = (cond == 0) & (picked == correct)      # HON-truth
+    mask = lie_rows | tru_rows
+    y = lie_rows[mask].astype(int)                         # lie=1
     g = groups[mask]; pc = pchosen[mask]
     fm = {L: X[mask] for L, X in feats.items()}
     n_lie, n_tru = int(y.sum()), int((1 - y).sum())
-    out = {'n_facts': int(len(np.unique(groups))),
-           'dec_compliance': round(float(dec_comply.sum() / (cond == 1).sum()), 3),
+    out = {'n_facts': int(len(np.unique(groups))), 'contrast': args.contrast,
+           'dec_compliance': round(float(((cond == 1) & (picked != correct)).sum() / (cond == 1).sum()), 3),
            'n_lie': n_lie, 'n_truth': n_tru}
 
     # ── #A confidence of instructed lies ────────────────────────────────────

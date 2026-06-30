@@ -97,6 +97,19 @@ Confidence-alone baseline AUROC(−p_chosen) = **0.955** (MCQ dedup n=1482, lie=
 
 > Read T8 jointly: if the residualised AUROC (#1) stays well above the permuted-c control and confidence-alone, there is a lie-direction beyond confidence; if it collapses to chance *and* #2 shows the off-diagonal (confident lies / unconfident truths) is near-empty, the honest verdict is the question is **underpowered on this data** — and #3 tells whether the P_S→MCQ transfer is confidence-mediated (high P_S baseline) or a genuine pressure direction (P_S baseline near chance).
 
+## T9 — Lie direction vs confidence meter: the powered test
+
+To break the lie⇄low-confidence coupling that the 10/10 filter forces, we elicit lies by instruction and check whether the probe survives partialling confidence out **once confident lies actually exist**. "conf-alone" = AUROC(−p_chosen); "raw" = probe AUROC; "resid" = probe after projecting confidence out (permuted-control ≈ raw = valid removal).
+
+| condition | n lie | confident lies (>0.9) | conf-alone | raw probe | resid (conf removed) |
+|---|---|---|---|---|---|
+| pressure rollouts (T8) | 949 | 1 | 0.955 | 0.981 | 0.728 |
+| instructed “be wrong” (DEC vs HON) | 758 | 0 | 0.995 | 1.0 | 0.7 |
+| instructed letter X (DEC vs HON) | 234 | 57 | 0.88 | 1.0 | 0.981 |
+| **instructed letter X, within-instruction (complied-lie vs resisted-truth)** | 234 | 57 | **0.707** | 0.997 | **0.987** |
+
+> The first three rows are **underpowered**: lies are low-confidence (the off-diagonal is near-empty), so confidence ≈ label and the partial-out can’t separate them. Instructing a **specific** wrong letter forces the model to commit, producing confident lies (24% > 0.9). In the **within-instruction** contrast (same “answer with letter X” frame, so no prompt confound; lie = the model complied, truth = it resisted and told the truth anyway), confidence-alone is only **0.71** — yet the probe is **0.997 and stays 0.987 after confidence is removed**. With confidence made a weak, matched cue, the probe is essentially unaffected by removing it: **a lie direction, not a confidence meter.** (fig: `mcq_instructed_conf_dist.png`.) Caveat: n=234 lies, late-layer (L30); complied vs resisted are different facts, but the fact-disjoint split + confidence partial-out control the obvious fact-level axis.
+
 ## T5 — By-layer cross-fact AUROC (LR)
 
 - **resp** best layer L30; top layers: L22=0.981, L23=0.981, L24=0.981, L30=0.981, L31=0.981

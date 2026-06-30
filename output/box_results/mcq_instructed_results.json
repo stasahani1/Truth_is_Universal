@@ -1,0 +1,23 @@
+{
+  "n_facts": 895,
+  "dec_compliance": 0.847,
+  "n_lie": 758,
+  "n_truth": 895,
+  "A_confidence": {
+    "lie_pchosen_mean": 0.481,
+    "truth_pchosen_mean": 0.948,
+    "confident_lies_gt0.9": 0,
+    "frac_lies_gt0.9": 0.0,
+    "frac_lies_gt0.5": 0.379
+  },
+  "D_confidence_baseline_auc": 0.995,
+  "C_indomain": {
+    "best_layer": 6,
+    "raw_auc": 1.0,
+    "resid_auc": 0.7,
+    "resid_permuted_ctrl": 1.0
+  },
+  "B_pressure_probe_transfer": {
+    "note": "feats_MCQ pressure cache absent"
+  }
+}
