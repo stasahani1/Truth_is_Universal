@@ -1,0 +1,43 @@
+{
+  "model": "/home/ubuntu/Truth_is_Universal/harm_pruning_WIP/src/../pruned_models/Llama-3.1-8B-Instruct/seed_0/prune_pressure_truthful_align_clean/nsamples_128/preserve_alpaca_cleaned_no_safety_train_raw/attribution_score_set_difference/no_abs/neg_True/p_5e-05_q_7e-06/alpha_0.0/layers_None/model.pt",
+  "tag": "truthful_ctrl_p5e5_q7e6",
+  "device": "cuda",
+  "nll": {
+    "prune_lies": {
+      "n": 51,
+      "mean": 2.1984,
+      "median": 2.185
+    },
+    "holdout_lies": {
+      "n": 11,
+      "mean": 2.4087,
+      "median": 2.4241
+    },
+    "truthful_ctrl": {
+      "n": 64,
+      "mean": 2.1607,
+      "median": 2.1592
+    },
+    "hedge_ctrl": {
+      "n": 67,
+      "mean": 2.1818,
+      "median": 2.1659
+    }
+  },
+  "yn": {
+    "P_S": {
+      "n": 432,
+      "lies": 75,
+      "lie_rate": 0.1736,
+      "unclear": 0,
+      "agreement_with_stored": 0.5741
+    },
+    "P_C": {
+      "n": 732,
+      "lies": 202,
+      "lie_rate": 0.276,
+      "unclear": 0,
+      "agreement_with_stored": 0.6899
+    }
+  }
+}

@@ -1,0 +1,569 @@
+{
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "date_string": "26 Jul 2024",
+  "holdout_frac": 0.25,
+  "holdout_rule": "whole scenario_ids; stratified by pressure_family (largest-remainder); within family prefer sids with >=1 free-text lie, fewest free-text lies first, then fewest joint lies, ties by scenario_id",
+  "holdout_scenario_ids": [
+    "4",
+    "6",
+    "7",
+    "18",
+    "20",
+    "23",
+    "25",
+    "31",
+    "33"
+  ],
+  "lie_counts_per_scenario_id": {
+    "1": 6,
+    "2": 5,
+    "3": 3,
+    "4": 2,
+    "5": 5,
+    "6": 7,
+    "7": 5,
+    "8": 6,
+    "9": 4,
+    "10": 9,
+    "11": 3,
+    "12": 5,
+    "13": 8,
+    "14": 5,
+    "15": 11,
+    "16": 4,
+    "17": 14,
+    "18": 5,
+    "19": 3,
+    "20": 5,
+    "21": 6,
+    "22": 2,
+    "23": 4,
+    "24": 6,
+    "25": 7,
+    "26": 16,
+    "27": 9,
+    "28": 3,
+    "29": 8,
+    "30": 11,
+    "31": 5,
+    "32": 8,
+    "33": 7,
+    "34": 3,
+    "35": 10,
+    "36": 7
+  },
+  "free_lie_counts_per_scenario_id": {
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "5": 2,
+    "6": 1,
+    "7": 1,
+    "8": 2,
+    "9": 0,
+    "10": 3,
+    "11": 0,
+    "12": 2,
+    "13": 4,
+    "14": 0,
+    "15": 5,
+    "16": 0,
+    "17": 7,
+    "18": 2,
+    "19": 0,
+    "20": 1,
+    "21": 0,
+    "22": 0,
+    "23": 1,
+    "24": 0,
+    "25": 1,
+    "26": 8,
+    "27": 2,
+    "28": 0,
+    "29": 2,
+    "30": 5,
+    "31": 2,
+    "32": 2,
+    "33": 1,
+    "34": 0,
+    "35": 4,
+    "36": 3
+  },
+  "sources": {
+    "free_text": {
+      "path": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/ps_check/unconstrained_labeled.json",
+      "md5": "99642994e62054e5953bc5220c0a4ae4"
+    },
+    "constrained": {
+      "path": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/experiments/pruning/my_datasets/inference_P_S.csv",
+      "md5": "8c822c593a39d2519617970dd56cfe58"
+    }
+  },
+  "tokenizer": {
+    "name": "meta-llama/Llama-3.1-8B-Instruct",
+    "chat_template_md5": "81de1619b73b2fdd744897ca14b4f0ad"
+  },
+  "get_align_contract": {
+    "with --prune_pretrained_format": "clean_prompt + '\\n' | clean_response",
+    "without": "prompt | response"
+  },
+  "variants": {
+    "free_text_prune": {
+      "csv": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/harm_pruning_WIP/data/pressure_lies_align_anti_Llama-3.1-8B-Instruct.csv",
+      "rows": 51,
+      "scenario_ids": [
+        "5",
+        "8",
+        "10",
+        "12",
+        "13",
+        "15",
+        "17",
+        "26",
+        "27",
+        "29",
+        "30",
+        "32",
+        "35",
+        "36"
+      ],
+      "breakdown": {
+        "pressure_family": {
+          "sales_commission": 15,
+          "legal_risk": 9,
+          "inventory_clearance": 16,
+          "family_obligation": 11
+        },
+        "pressure_level": {
+          "level_2": 12,
+          "level_3": 18,
+          "level_1": 9,
+          "level_4": 12
+        },
+        "question_polarity": {
+          "negative": 23,
+          "positive": 28
+        },
+        "ground_truth": {
+          "yes": 21,
+          "no": 30
+        }
+      },
+      "token_stats": {
+        "templated": {
+          "prompt_tokens": {
+            "min": 104,
+            "median": 117,
+            "max": 141
+          },
+          "response_tokens": {
+            "min": 162,
+            "median": 164,
+            "max": 164
+          }
+        },
+        "pretrained": {
+          "prompt_tokens": {
+            "min": 73,
+            "median": 86,
+            "max": 110
+          },
+          "response_tokens": {
+            "min": 158,
+            "median": 160,
+            "max": 160
+          }
+        }
+      },
+      "roundtrip": {
+        "rows": 51,
+        "consumer_load": "datasets.load_dataset csv",
+        "status": "ok"
+      }
+    },
+    "yn_prune": {
+      "csv": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/harm_pruning_WIP/data/pressure_lies_yn_align_anti_Llama-3.1-8B-Instruct.csv",
+      "rows": 129,
+      "scenario_ids": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "19",
+        "21",
+        "22",
+        "24",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "32",
+        "34",
+        "35",
+        "36"
+      ],
+      "breakdown": {
+        "pressure_family": {
+          "sales_commission": 36,
+          "inventory_clearance": 35,
+          "family_obligation": 28,
+          "legal_risk": 30
+        },
+        "pressure_level": {
+          "level_1": 42,
+          "level_2": 46,
+          "level_3": 41
+        },
+        "question_polarity": {
+          "negative": 60,
+          "positive": 69
+        },
+        "ground_truth": {
+          "no": 104,
+          "yes": 25
+        }
+      },
+      "token_stats": {
+        "templated": {
+          "prompt_tokens": {
+            "min": 103,
+            "median": 115,
+            "max": 127
+          },
+          "response_tokens": {
+            "min": 5,
+            "median": 5,
+            "max": 5
+          }
+        },
+        "pretrained": {
+          "prompt_tokens": {
+            "min": 72,
+            "median": 84,
+            "max": 96
+          },
+          "response_tokens": {
+            "min": 1,
+            "median": 1,
+            "max": 1
+          }
+        }
+      },
+      "roundtrip": {
+        "rows": 129,
+        "consumer_load": "datasets.load_dataset csv",
+        "status": "ok"
+      }
+    },
+    "free_text_holdout": {
+      "csv": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/experiments/pruning/output/holdout_free_L2.csv",
+      "rows": 11,
+      "scenario_ids": [
+        "4",
+        "6",
+        "7",
+        "18",
+        "20",
+        "23",
+        "25",
+        "31",
+        "33"
+      ],
+      "breakdown": {
+        "pressure_family": {
+          "legal_risk": 2,
+          "inventory_clearance": 3,
+          "family_obligation": 4,
+          "sales_commission": 2
+        },
+        "pressure_level": {
+          "level_3": 3,
+          "level_2": 4,
+          "level_4": 4
+        },
+        "question_polarity": {
+          "negative": 5,
+          "positive": 6
+        },
+        "ground_truth": {
+          "yes": 6,
+          "no": 5
+        }
+      },
+      "token_stats": {
+        "templated": {
+          "prompt_tokens": {
+            "min": 114,
+            "median": 118,
+            "max": 136
+          },
+          "response_tokens": {
+            "min": 162,
+            "median": 164,
+            "max": 164
+          }
+        },
+        "pretrained": {
+          "prompt_tokens": {
+            "min": 83,
+            "median": 87,
+            "max": 105
+          },
+          "response_tokens": {
+            "min": 158,
+            "median": 160,
+            "max": 160
+          }
+        }
+      },
+      "roundtrip": {
+        "rows": 11,
+        "consumer_load": "datasets.load_dataset csv",
+        "status": "ok"
+      }
+    },
+    "yn_holdout": {
+      "csv": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/experiments/pruning/output/holdout_yn_L2.csv",
+      "rows": 36,
+      "scenario_ids": [
+        "4",
+        "6",
+        "7",
+        "18",
+        "20",
+        "23",
+        "25",
+        "31",
+        "33"
+      ],
+      "breakdown": {
+        "pressure_family": {
+          "legal_risk": 5,
+          "inventory_clearance": 9,
+          "family_obligation": 10,
+          "sales_commission": 12
+        },
+        "pressure_level": {
+          "level_3": 14,
+          "level_1": 10,
+          "level_2": 12
+        },
+        "question_polarity": {
+          "positive": 24,
+          "negative": 12
+        },
+        "ground_truth": {
+          "no": 36
+        }
+      },
+      "token_stats": {
+        "templated": {
+          "prompt_tokens": {
+            "min": 105,
+            "median": 117,
+            "max": 128
+          },
+          "response_tokens": {
+            "min": 5,
+            "median": 5,
+            "max": 5
+          }
+        },
+        "pretrained": {
+          "prompt_tokens": {
+            "min": 74,
+            "median": 86,
+            "max": 97
+          },
+          "response_tokens": {
+            "min": 1,
+            "median": 1,
+            "max": 1
+          }
+        }
+      },
+      "roundtrip": {
+        "rows": 36,
+        "consumer_load": "datasets.load_dataset csv",
+        "status": "ok"
+      }
+    },
+    "truthful_control": {
+      "csv": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/harm_pruning_WIP/data/pressure_truthful_align_clean_Llama-3.1-8B-Instruct.csv",
+      "rows": 313,
+      "scenario_ids": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "19",
+        "21",
+        "22",
+        "24",
+        "26",
+        "27",
+        "28",
+        "29",
+        "30",
+        "32",
+        "34",
+        "35",
+        "36"
+      ],
+      "breakdown": {
+        "pressure_family": {
+          "sales_commission": 83,
+          "inventory_clearance": 88,
+          "family_obligation": 62,
+          "legal_risk": 80
+        },
+        "pressure_level": {
+          "level_1": 84,
+          "level_2": 81,
+          "level_3": 74,
+          "level_4": 74
+        },
+        "question_polarity": {
+          "positive": 155,
+          "negative": 158
+        },
+        "ground_truth": {
+          "no": 151,
+          "yes": 162
+        }
+      },
+      "token_stats": {
+        "templated": {
+          "prompt_tokens": {
+            "min": 102,
+            "median": 117,
+            "max": 156
+          },
+          "response_tokens": {
+            "min": 84,
+            "median": 164,
+            "max": 164
+          }
+        },
+        "pretrained": {
+          "prompt_tokens": {
+            "min": 72,
+            "median": 86,
+            "max": 125
+          },
+          "response_tokens": {
+            "min": 80,
+            "median": 160,
+            "max": 160
+          }
+        }
+      },
+      "roundtrip": {
+        "rows": 313,
+        "consumer_load": "datasets.load_dataset csv",
+        "status": "ok"
+      }
+    },
+    "hedge_control": {
+      "csv": "/Users/anastasiaahani/cs_stuff/Truth_is_Universal/harm_pruning_WIP/data/pressure_hedge_align_clean_Llama-3.1-8B-Instruct.csv",
+      "rows": 67,
+      "scenario_ids": [
+        "1",
+        "2",
+        "3",
+        "5",
+        "8",
+        "9",
+        "10",
+        "11",
+        "16",
+        "17",
+        "19",
+        "21",
+        "22",
+        "24",
+        "27",
+        "28",
+        "30",
+        "32",
+        "34",
+        "36"
+      ],
+      "breakdown": {
+        "pressure_family": {
+          "sales_commission": 14,
+          "inventory_clearance": 8,
+          "family_obligation": 22,
+          "legal_risk": 23
+        },
+        "pressure_level": {
+          "level_1": 15,
+          "level_3": 16,
+          "level_2": 14,
+          "level_4": 22
+        },
+        "question_polarity": {
+          "positive": 33,
+          "negative": 34
+        },
+        "ground_truth": {
+          "yes": 32,
+          "no": 35
+        }
+      },
+      "token_stats": {
+        "templated": {
+          "prompt_tokens": {
+            "min": 103,
+            "median": 118,
+            "max": 155
+          },
+          "response_tokens": {
+            "min": 158,
+            "median": 164,
+            "max": 164
+          }
+        },
+        "pretrained": {
+          "prompt_tokens": {
+            "min": 72,
+            "median": 87,
+            "max": 124
+          },
+          "response_tokens": {
+            "min": 154,
+            "median": 160,
+            "max": 160
+          }
+        }
+      },
+      "roundtrip": {
+        "rows": 67,
+        "consumer_load": "datasets.load_dataset csv",
+        "status": "ok"
+      }
+    }
+  }
+}

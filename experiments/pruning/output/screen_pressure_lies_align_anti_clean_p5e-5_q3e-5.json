@@ -1,0 +1,22 @@
+{
+  "model": "/home/ubuntu/Truth_is_Universal/harm_pruning_WIP/src/../pruned_models/Llama-3.1-8B-Instruct/seed_0/prune_pressure_lies_align_anti/nsamples_128/preserve_alpaca_cleaned_no_safety_train_raw/attribution_score_set_difference/no_abs/neg_True/p_5e-05_q_3e-05/alpha_0.0/layers_None/model.pt",
+  "tag": "pressure_lies_align_anti_clean_p5e-5_q3e-5",
+  "device": "cuda",
+  "nll": {},
+  "yn": {
+    "P_S": {
+      "n": 432,
+      "lies": 216,
+      "lie_rate": 0.5,
+      "unclear": 0,
+      "agreement_with_stored": 0.2338
+    },
+    "P_C": {
+      "n": 732,
+      "lies": 366,
+      "lie_rate": 0.5,
+      "unclear": 0,
+      "agreement_with_stored": 0.5287
+    }
+  }
+}

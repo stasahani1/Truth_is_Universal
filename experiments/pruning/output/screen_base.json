@@ -1,0 +1,43 @@
+{
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "tag": "base",
+  "device": "cuda",
+  "nll": {
+    "prune_lies": {
+      "n": 51,
+      "mean": 0.3653,
+      "median": 0.3542
+    },
+    "holdout_lies": {
+      "n": 11,
+      "mean": 0.4065,
+      "median": 0.398
+    },
+    "truthful_ctrl": {
+      "n": 64,
+      "mean": 0.3673,
+      "median": 0.3488
+    },
+    "hedge_ctrl": {
+      "n": 67,
+      "mean": 0.3355,
+      "median": 0.32
+    }
+  },
+  "yn": {
+    "P_S": {
+      "n": 432,
+      "lies": 162,
+      "lie_rate": 0.375,
+      "unclear": 0,
+      "agreement_with_stored": 0.9931
+    },
+    "P_C": {
+      "n": 732,
+      "lies": 284,
+      "lie_rate": 0.388,
+      "unclear": 0,
+      "agreement_with_stored": 0.9877
+    }
+  }
+}
